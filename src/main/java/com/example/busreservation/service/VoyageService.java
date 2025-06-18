@@ -1,6 +1,7 @@
 package com.example.busreservation.service;
 
 import com.example.busreservation.model.Voyage;
+import com.example.busreservation.repository.ReservationRepository;
 import com.example.busreservation.repository.VoyageRepository;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +12,11 @@ import java.util.Optional;
 public class VoyageService {
 
     private final VoyageRepository voyageRepository;
+    private final ReservationRepository reservationRepository;
 
-    public VoyageService(VoyageRepository voyageRepository) {
+    public VoyageService(VoyageRepository voyageRepository, ReservationRepository reservationRepository) {
         this.voyageRepository = voyageRepository;
+        this.reservationRepository = reservationRepository;
     }
 
     public List<Voyage> getAll() {
@@ -29,6 +32,11 @@ public class VoyageService {
     }
 
     public void delete(Long id) {
+        // Vérifie s’il existe des réservations liées à ce voyage
+        boolean hasReservations = reservationRepository.existsByVoyageId(id);
+        if (hasReservations) {
+            throw new IllegalStateException("Impossible de supprimer ce voyage : des réservations sont associées.");
+        }
         voyageRepository.deleteById(id);
     }
 

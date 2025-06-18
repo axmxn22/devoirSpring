@@ -5,6 +5,7 @@ import com.example.busreservation.service.VoyageService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 
@@ -49,10 +50,15 @@ public class VoyageController {
         voyageService.save(voyage);
         return "redirect:/voyages";
     }
-
     @GetMapping("/delete/{id}")
-    public String supprimer(@PathVariable Long id) {
-        voyageService.delete(id);
+    public String supprimer(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            voyageService.delete(id);
+            redirectAttributes.addFlashAttribute("success", "Voyage supprimé avec succès.");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
         return "redirect:/voyages";
     }
+
 }
